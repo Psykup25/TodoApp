@@ -9,10 +9,11 @@ import { Router } from '@angular/router';
   imports: [CommonModule],
   template: `
     <h2>Inscription</h2>
-    <form (submit)="register()">
-      <input [value]="email()" (input)="email.set($any($event.target).value)" name="email" placeholder="Email" class="form-control mb-2" required>
-      <input [value]="password()" (input)="password.set($any($event.target).value)" name="password" type="password" placeholder="Mot de passe" class="form-control mb-2" required>
-      <button class="btn btn-success">S'inscrire</button>
+    <form (submit)="register($event)">
+      <input [value]="email()" (input)="email.set($any($event.target).value)" placeholder="Email" class="form-control mb-2" required>
+      <input [value]="password()" (input)="password.set($any($event.target).value)" type="password" placeholder="Mot de passe" class="form-control mb-2" required>
+      <input [value]="username()" (input)="username.set($any($event.target).value)" placeholder="Nom d'utilisateur" class="form-control mb-2" required>
+      <button type="submit" class="btn btn-success">S'inscrire</button>
     </form>
   `
 })
@@ -22,11 +23,21 @@ export class RegisterComponent {
 
   email = signal('');
   password = signal('');
+  username = signal('');
 
-  register() {
-    this.auth.register({ email: this.email(), password: this.password() }).subscribe({
+  register(event: Event) {
+    event.preventDefault();
+    this.auth.register({
+      email: this.email(),
+      password: this.password(),
+      username: this.username()
+    }).subscribe({
       next: () => this.router.navigate(['/login']),
-      error: () => alert("Erreur d'inscription")
+      error: (err) => {
+        console.error(err);
+        alert("Erreur d'inscription");
+      }
     });
   }
+
 }
