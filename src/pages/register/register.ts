@@ -1,43 +1,44 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { AuthService } from '/home/formation/Documents/Codage/todo-app/src/services/auth.service';
 import { Router } from '@angular/router';
 
 @Component({
   standalone: true,
   selector: 'app-register',
-  imports: [CommonModule],
-  template: `
-    <h2>Inscription</h2>
-    <form (submit)="register($event)">
-      <input [value]="email()" (input)="email.set($any($event.target).value)" placeholder="Email" class="form-control mb-2" required>
-      <input [value]="password()" (input)="password.set($any($event.target).value)" type="password" placeholder="Mot de passe" class="form-control mb-2" required>
-      <input [value]="username()" (input)="username.set($any($event.target).value)" placeholder="Nom d'utilisateur" class="form-control mb-2" required>
-      <button type="submit" class="btn btn-success">S'inscrire</button>
-    </form>
-  `
+  imports: [CommonModule, FormsModule],
+  templateUrl: './register.html'
 })
 export class RegisterComponent {
   private auth = inject(AuthService);
   private router = inject(Router);
 
+  username = signal('');
   email = signal('');
   password = signal('');
-  username = signal('');
+  loading = signal(false);
+  errorMessage = signal('');
+  successMessage = signal('');
 
-  register(event: Event) {
-    event.preventDefault();
+  register() {
+    this.loading.set(true);
+    this.errorMessage.set('');
+    this.successMessage.set('');
     this.auth.register({
+      username: this.username(),
       email: this.email(),
-      password: this.password(),
-      username: this.username()
+      password: this.password()
     }).subscribe({
-      next: () => this.router.navigate(['/login']),
-      error: (err) => {
-        console.error(err);
-        alert("Erreur d'inscription");
+      next: () => {
+        this.successMessage.set('Inscription réussie ! Vous pouvez vous connecter.');
+        this.loading.set(false);
+        setTimeout(() => this.router.navigate(['/login']), 1500);
+      },
+      error: () => {
+        this.errorMessage.set('Erreur lors de l\'inscription');
+        this.loading.set(false);
       }
     });
   }
-
 }
