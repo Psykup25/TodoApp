@@ -1,5 +1,6 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { TaskService } from '/home/formation/Documents/Codage/todo-app/src/services/task.service';
 import { AuthService } from '/home/formation/Documents/Codage/todo-app/src/services/auth.service';
 import { Router } from '@angular/router';
@@ -7,52 +8,45 @@ import { Router } from '@angular/router';
 @Component({
   standalone: true,
   selector: 'app-dashboard',
-  imports: [CommonModule],
-  template: `
-    <h2>Mes tâches</h2>
-    <form (submit)="addTask()" class="mb-4">
-      <input [value]="title()" (input)="title.set($any($event.target).value)" name="title" placeholder="Titre" class="form-control mb-2" required>
-      <textarea [value]="content()" (input)="content.set($any($event.target).value)" name="content" placeholder="Contenu" class="form-control mb-2" required></textarea>
-      <button class="btn btn-success">Ajouter</button>
-    </form>
-
-    <ul class="list-group">
-      <li *ngFor="let task of tasks()" class="list-group-item">
-        <h5>{{ task.title }}</h5>
-        <p>{{ task.content }}</p>
-        <button class="btn btn-danger btn-sm" (click)="deleteTask(task.id)">Supprimer</button>
-      </li>
-    </ul>
-  `
+  imports: [CommonModule, FormsModule],
+  templateUrl: './dashboard.html'
 })
 export class DashboardComponent {
   private taskService = inject(TaskService);
   private auth = inject(AuthService);
   private router = inject(Router);
 
-  title = signal('');
-  content = signal('');
   tasks = signal<any[]>([]);
+  newTitle = signal('');
+  newContent = signal('');
 
   constructor() {
-    effect(() => {
-      if (!this.auth.getToken()) {
-        this.router.navigate(['/login']);
-      } else {
-        this.loadTasks();
-      }
-    });
+    if (!this.auth.getToken()) {
+      this.router.navigate(['/login']);
+    }
+  }
+
+  ngOnInit() {
+    this.loadTasks();
   }
 
   loadTasks() {
-    this.taskService.getTasks().subscribe(res => this.tasks.set(res));
+    this.taskService.getTasks().subscribe(tasks => {
+      console.log(tasks);
+      this.tasks.set(tasks);
+    });
   }
 
   addTask() {
-    this.taskService.createTask({ title: this.title(), content: this.content() }).subscribe(() => {
-      this.title.set('');
-      this.content.set('');
-      this.loadTasks();
+    this.taskService.createTask({
+      title: this.newTitle(),
+      content: this.newContent()
+    }).subscribe({
+      next: (task) => {
+        this.tasks.set([...this.tasks(), task]);
+        this.newTitle.set('');
+        this.newContent.set('');
+      }
     });
   }
 

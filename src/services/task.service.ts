@@ -6,7 +6,7 @@ import { AuthService } from './auth.service';
 export class TaskService {
   private http = inject(HttpClient);
   private auth = inject(AuthService);
-  private api = 'https://todof.woopear.fr';
+  private api = 'https://todof.woopear.fr/api/v1';
 
   private headers() {
     return {

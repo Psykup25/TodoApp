@@ -1,13 +1,13 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms'; // <-- Ajoute ceci
+import { FormsModule } from '@angular/forms'; 
 import { AuthService } from '/home/formation/Documents/Codage/todo-app/src/services/auth.service';
 import { Router } from '@angular/router';
 
 @Component({
   standalone: true,
   selector: 'app-login',
-  imports: [CommonModule, FormsModule], // <-- Ajoute FormsModule ici
+  imports: [CommonModule, FormsModule], 
   templateUrl: './login.html'
 })
 export class LoginComponent {

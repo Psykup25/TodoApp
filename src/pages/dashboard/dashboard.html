@@ -1,1 +1,24 @@
-<p>dashboard works!</p>
+<form (ngSubmit)="addTask()">
+  <input
+    type="text"
+    [(ngModel)]="newTitle"
+    name="title"
+    placeholder="Titre"
+    required
+  >
+  <input
+    type="text"
+    [(ngModel)]="newContent"
+    name="content"
+    placeholder="Contenu"
+    required
+  >
+  <button type="submit">Ajouter</button>
+</form>
+
+<ul>
+  <li *ngFor="let task of tasks()">
+    <strong>{{ task.title }}</strong> : {{ task.content }}
+    <button (click)="deleteTask(task.id)">Supprimer</button>
+  </li>
+</ul>
