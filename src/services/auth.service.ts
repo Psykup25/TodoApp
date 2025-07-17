@@ -11,18 +11,23 @@ export class AuthService {
   }
 
   login(data: { email: string; password: string }) {
-    return this.http.post<{ access_token: string }>(`${this.api}/login`, data);
+    return this.http.post<{ data: { token: string } }>(`${this.api}/login`, data);
   }
 
   saveToken(token: string) {
     localStorage.setItem('token', token);
   }
-
-  getToken(): string | null {
-    return localStorage.getItem('token');
+  getToken() {
+    const token = localStorage.getItem('token');
+    console.log('getToken() lit:', token);
+    return token;
   }
 
   logout() {
     localStorage.removeItem('token');
+  }
+
+  isLoggedIn(): boolean {
+    return !!this.getToken();
   }
 }

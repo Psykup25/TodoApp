@@ -1,34 +1,28 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { AuthService } from './auth.service';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({ providedIn: 'root' })
 export class TaskService {
   private http = inject(HttpClient);
-  private auth = inject(AuthService);
-  private api = 'https://todof.woopear.fr/api/v1';
-
-  private headers() {
-    return {
-      headers: new HttpHeaders({
-        Authorization: `Bearer ${this.auth.getToken()}`
-      })
-    };
-  }
+  private api = 'https://todof.woopear.fr/api/v1/task';
 
   getTasks() {
-    return this.http.get<any[]>(`${this.api}/tasks`, this.headers());
+    return this.http.get<{ data: any[] }>(this.api);
   }
 
-  createTask(data: { title: string; content: string }) {
-    return this.http.post(`${this.api}/tasks`, data, this.headers());
+  createTask(data: { label: string;}) {
+    return this.http.post(this.api, data);
   }
 
-  updateTask(id: number, data: { title: string; content: string }) {
-    return this.http.put(`${this.api}/tasks/${id}`, data, this.headers());
+  updateTask(id: string, data: { label: string }) {
+    return this.http.put(`${this.api}/${id}/label/user`, data);
   }
 
-  deleteTask(id: number) {
-    return this.http.delete(`${this.api}/tasks/${id}`, this.headers());
+  deleteTask(id: string) {
+    return this.http.delete(`${this.api}/${id}/user`);
+  }
+
+  updateDone(id: string, data: { done: boolean }) {
+    return this.http.put(`${this.api}/${id}/done/user`, data);
   }
 }

@@ -1,16 +1,10 @@
 <form (ngSubmit)="addTask()">
   <input
     type="text"
-    [(ngModel)]="newTitle"
-    name="title"
-    placeholder="Titre"
-    required
-  >
-  <input
-    type="text"
-    [(ngModel)]="newContent"
-    name="content"
-    placeholder="Contenu"
+    [ngModel]="newLabel()"
+    (ngModelChange)="newLabel.set($event)"
+    name="label"
+    placeholder="Nouvelle tache"
     required
   >
   <button type="submit">Ajouter</button>
@@ -18,7 +12,25 @@
 
 <ul>
   <li *ngFor="let task of tasks()">
-    <strong>{{ task.title }}</strong> : {{ task.content }}
+    <input
+      type="checkbox"
+      [checked]="task.done"
+      (change)="toggleDone(task)"
+    >
+    <strong>{{ task.label }}</strong>
+    <button (click)="editTask(task)">Modifier</button>
     <button (click)="deleteTask(task.id)">Supprimer</button>
   </li>
 </ul>
+
+<form *ngIf="editMode()" (ngSubmit)="updateTask()">
+  <input
+    type="text"
+    [ngModel]="editLabel()"
+    (ngModelChange)="editLabel.set($event)"
+    name="editLabel"
+    required
+  >
+  <button type="submit">Enregistrer</button>
+  <button type="button" (click)="cancelEdit()">Annuler</button>
+</form>

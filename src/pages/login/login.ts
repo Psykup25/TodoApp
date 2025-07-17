@@ -19,13 +19,20 @@ export class LoginComponent {
   loading = signal(false);
   errorMessage = signal('');
 
+  constructor() {
+    console.log('LoginComponent chargé');
+  }
+
   login() {
+    console.log('Méthode login appelée');
     this.loading.set(true);
     this.errorMessage.set('');
     this.auth.login({ email: this.email(), password: this.password() }).subscribe({
       next: res => {
-        this.auth.saveToken(res.access_token);
-        this.router.navigate(['/dashboard']);
+        console.log('Réponse login:', res); 
+        console.log('Token à sauvegarder:', res.data?.token);
+        this.auth.saveToken(res.data?.token);
+        this.router.navigate(['/dashboard']).then(() => window.location.reload());
         this.loading.set(false);
       },
       error: () => {

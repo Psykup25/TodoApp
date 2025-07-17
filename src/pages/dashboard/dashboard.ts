@@ -19,38 +19,79 @@ export class DashboardComponent {
   tasks = signal<any[]>([]);
   newTitle = signal('');
   newContent = signal('');
+  newLabel = signal('');
+  editMode = signal(false);
+  taskToEdit = signal<any | null>(null);
+  editLabel = signal('');
 
   constructor() {
+    console.log('Token utilisé:', this.auth.getToken());
     if (!this.auth.getToken()) {
       this.router.navigate(['/login']);
     }
   }
 
   ngOnInit() {
-    this.loadTasks();
-  }
-
-  loadTasks() {
-    this.taskService.getTasks().subscribe(tasks => {
-      console.log(tasks);
-      this.tasks.set(tasks);
+    this.taskService.getTasks().subscribe({
+      next: (res) => {
+        console.log('Exemple de tâche:', res.data[0]); 
+        this.tasks.set(res.data);
+      },
+      error: err => {
+        console.error('Erreur lors du chargement des tâches:', err);
+      }
     });
   }
 
   addTask() {
     this.taskService.createTask({
-      title: this.newTitle(),
-      content: this.newContent()
+      label: this.newLabel(),
     }).subscribe({
-      next: (task) => {
-        this.tasks.set([...this.tasks(), task]);
-        this.newTitle.set('');
-        this.newContent.set('');
+      next: () => {
+        this.loadTasks();         
+        this.newLabel.set('');
       }
     });
   }
 
-  deleteTask(id: number) {
+  deleteTask(id: string) {
     this.taskService.deleteTask(id).subscribe(() => this.loadTasks());
+  }
+
+  loadTasks() {
+    this.taskService.getTasks().subscribe({
+      next: (res) => this.tasks.set(res.data),
+      error: err => console.error('Erreur lors du chargement des tâches:', err)
+    });
+  }
+
+  editTask(task: any) {
+    this.editMode.set(true);
+    this.taskToEdit.set(task);
+    this.editLabel.set(task.label);
+  }
+
+  updateTask() {
+    const task = this.taskToEdit();
+    this.taskService.updateTask(task.id, { label: this.editLabel() }).subscribe({
+      next: () => {
+        this.loadTasks();
+        this.editMode.set(false);
+        this.taskToEdit.set(null);
+        this.editLabel.set('');
+      }
+    });
+  }
+
+  cancelEdit() {
+    this.editMode.set(false);
+    this.taskToEdit.set(null);
+    this.editLabel.set('');
+  }
+
+  toggleDone(task: any) {
+    this.taskService.updateDone(task.id, { done: !task.done }).subscribe({
+      next: () => this.loadTasks()
+    });
   }
 }
