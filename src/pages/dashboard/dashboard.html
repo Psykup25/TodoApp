@@ -17,7 +17,9 @@
       [checked]="task.done"
       (change)="toggleDone(task)"
     >
-    <strong>{{ task.label }}</strong>
+    <strong [style.text-decoration]="task.done ? 'line-through' : 'none'">
+      {{ task.label }}
+    </strong>
     <button (click)="editTask(task)">Modifier</button>
     <button (click)="deleteTask(task.id)">Supprimer</button>
   </li>
